@@ -1,0 +1,36 @@
+{
+    "name": "flogar/ws",
+    "description": "Flogar Web Services",
+    "keywords": ["flogar", "soap", "webservices"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jucafloga",
+            "email": "jucafloga@gmail.com"
+        }
+    ],
+    "homepage": "https://github.com/jucafloga/flogar-ws",
+    "type": "library",
+    "require": {
+        "php": ">=5.5.9",
+        "ext-zip": "*",
+        "ext-zlib": "*",
+        "ext-dom": "*",
+        "ext-soap": "*",
+        "flogar/core": "^1.0.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": ">=4.8 < 6.0",
+        "mockery/mockery": "^1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flogar\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Flogar\\": "tests/"
+        }
+    }
+}
