@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Flogar\Zip;
 
@@ -15,5 +16,5 @@ interface DecompressInterface
      *
      * @return array
      */
-    public function decompress($content, callable $filter = null);
+    public function decompress(?string $content, callable $filter = null): ?array;
 }

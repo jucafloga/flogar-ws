@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Flogar\Ws\Reader;
 
@@ -10,7 +11,7 @@ interface FilenameExtractorInterface
     /**
      * @param \DOMDocument|string $content
      *
-     * @return string
+     * @return string|null
      */
-    public function getFilename($content);
+    public function getFilename($content): ?string;
 }

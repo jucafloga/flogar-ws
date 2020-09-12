@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Flogar\Ws\Services;
 
@@ -12,6 +13,7 @@ use Flogar\Zip\CompressInterface;
 use Flogar\Zip\DecompressInterface;
 use Flogar\Zip\ZipFileDecompress;
 use Flogar\Zip\ZipFly;
+use SoapFault;
 
 /**
  * Class BaseSunat.
@@ -26,29 +28,29 @@ class BaseSunat
     private $client;
 
     /**
-     * @var ErrorCodeProviderInterface
+     * @var ErrorCodeProviderInterface|null
      */
     private $codeProvider;
 
     /**
-     * @var CompressInterface
+     * @var CompressInterface|null
      */
     public $compressor;
 
     /**
-     * @var DecompressInterface
+     * @var DecompressInterface|null
      */
     public $decompressor;
 
     /**
-     * @var CdrReaderInterface
+     * @var CdrReaderInterface|null
      */
     public $cdrReader;
 
     /**
-     * @param ErrorCodeProviderInterface $codeProvider
+     * @param ErrorCodeProviderInterface|null $codeProvider
      */
-    public function setCodeProvider(ErrorCodeProviderInterface $codeProvider)
+    public function setCodeProvider(?ErrorCodeProviderInterface $codeProvider)
     {
         $this->codeProvider = $codeProvider;
     }
@@ -56,7 +58,7 @@ class BaseSunat
     /**
      * @return WsClientInterface
      */
-    public function getClient()
+    public function getClient(): WsClientInterface
     {
         return $this->client;
     }
@@ -66,7 +68,7 @@ class BaseSunat
      *
      * @return BaseSunat
      */
-    public function setClient($client)
+    public function setClient(WsClientInterface $client)
     {
         $this->client = $client;
 
@@ -76,11 +78,11 @@ class BaseSunat
     /**
      * Get error from Fault Exception.
      *
-     * @param \SoapFault $fault
+     * @param SoapFault $fault
      *
      * @return Error
      */
-    protected function getErrorFromFault(\SoapFault $fault)
+    protected function getErrorFromFault(SoapFault $fault)
     {
         $error = $this->getErrorByCode($fault->faultcode, $fault->faultstring);
 
@@ -131,7 +133,7 @@ class BaseSunat
     }
 
     /**
-     * @param $zipContent
+     * @param string $zipContent
      *
      * @return \Flogar\Model\Response\CdrResponse
      */
@@ -147,13 +149,13 @@ class BaseSunat
     }
 
     /**
-     * @param $code
+     * @param string $code
      *
      * @return string
      */
     protected function getMessageError($code)
     {
-        if (empty($this->codeProvider)) {
+        if ($this->codeProvider === null) {
             return '';
         }
 
@@ -162,7 +164,7 @@ class BaseSunat
 
     protected function isExceptionCode($code)
     {
-        $value = intval($code);
+        $value = (int)$code;
 
         return $value >= 100 && $value <= 1999;
     }

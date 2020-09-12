@@ -1,7 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace Flogar\Ws\Services;
 
+use Exception;
 use Flogar\Model\Response\Error;
 use Flogar\Model\Response\StatusResult;
 
@@ -14,8 +16,9 @@ class ExtService extends BaseSunat
      * @param string $ticket
      *
      * @return StatusResult
+     * @throws Exception
      */
-    public function getStatus($ticket)
+    public function getStatus($ticket): StatusResult
     {
         try {
             return $this->getStatusInternal($ticket);
@@ -27,21 +30,30 @@ class ExtService extends BaseSunat
         }
     }
 
-    private function getStatusInternal($ticket)
+    private function getStatusInternal($ticket): StatusResult
     {
         $params = [
             'ticket' => $ticket,
         ];
 
         $response = $this->getClient()->call('getStatus', ['parameters' => $params]);
-        $status = $response->status;
-        $code = $status->statusCode;
+        if (!isset($response->status)) {
+            throw new Exception('Invalid getStatus service response.');
+        }
+
+        return $this->processResponse($response->status);
+    }
+
+    private function processResponse($status): StatusResult
+    {
+        $originCode = $status->statusCode;
+        $code = (int)$originCode;
 
         $result = new StatusResult();
-        $result->setCode($code);
+        $result->setCode($originCode);
 
         if ($this->isPending($code)) {
-            $result->setError($this->getCustomError($code));
+            $result->setError($this->getCustomError($originCode));
 
             return $result;
         }
@@ -57,7 +69,7 @@ class ExtService extends BaseSunat
         }
 
         if ($this->isExceptionCode($code)) {
-            $this->loadErrorByCode($result, $code);
+            $this->loadErrorByCode($result, $originCode);
         }
 
         return $result;
@@ -68,20 +80,18 @@ class ExtService extends BaseSunat
      *
      * @return Error
      */
-    private function getCustomError($code)
+    private function getCustomError($code): Error
     {
-        $error = new Error($code, 'El procesamiento del comprobante aún no ha terminado');
-
-        return $error;
+        return new Error($code, 'El procesamiento del comprobante aún no ha terminado');
     }
 
-    private function isProcessed($code)
+    private function isProcessed(int $code)
     {
-        return '0' == $code || '99' == $code;
+        return 0 === $code || 99 === $code;
     }
 
-    private function isPending($code)
+    private function isPending(int $code)
     {
-        return '98' == $code;
+        return 98 === $code;
     }
 }

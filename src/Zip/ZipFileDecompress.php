@@ -2,6 +2,8 @@
 
 namespace Flogar\Zip;
 
+use ZipArchive;
+
 /**
  * Class ZipFileDecompress.
  */
@@ -15,11 +17,11 @@ class ZipFileDecompress implements DecompressInterface
      *
      * @return array
      */
-    public function decompress($content, callable $filter = null)
+    public function decompress(?string $content, callable $filter = null): ?array
     {
         $temp = tempnam(sys_get_temp_dir(), time().'.zip');
         file_put_contents($temp, $content);
-        $zip = new \ZipArchive();
+        $zip = new ZipArchive();
         $output = [];
         if (true === $zip->open($temp) && $zip->numFiles > 0) {
             $output = iterator_to_array($this->getFiles($zip, $filter));
@@ -30,7 +32,7 @@ class ZipFileDecompress implements DecompressInterface
         return $output;
     }
 
-    private function getFiles(\ZipArchive $zip, $filter)
+    private function getFiles(ZipArchive $zip, $filter)
     {
         $total = $zip->numFiles;
         for ($i = 0; $i < $total; ++$i) {

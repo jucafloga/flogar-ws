@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Flogar\Ws\Services;
 
@@ -15,9 +16,9 @@ class SummarySender extends BaseSunat implements SenderInterface
      * @param string $filename
      * @param string $content
      *
-     * @return BaseResult
+     * @return BaseResult|null
      */
-    public function send($filename, $content)
+    public function send(?string $filename, ?string $content): ?BaseResult
     {
         $client = $this->getClient();
         $result = new SummaryResult();

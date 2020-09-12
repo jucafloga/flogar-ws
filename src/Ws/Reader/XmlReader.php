@@ -2,6 +2,9 @@
 
 namespace Flogar\Ws\Reader;
 
+use DOMDocument;
+use DOMXPath;
+
 /**
  * Class XmlReader.
  */
@@ -13,7 +16,7 @@ class XmlReader
     const ROOT_PREFIX = 'x';
 
     /**
-     * @var \DOMXPath
+     * @var DOMXPath
      */
     private $xpath;
     /**
@@ -32,7 +35,7 @@ class XmlReader
     }
 
     /**
-     * @return \DOMXPath
+     * @return DOMXPath
      */
     public function getXpath()
     {
@@ -44,11 +47,11 @@ class XmlReader
      *
      * @param string $content
      *
-     * @return \DOMDocument
+     * @return DOMDocument
      */
     public function getDocument($content)
     {
-        $doc = new \DOMDocument();
+        $doc = new DOMDocument();
         $doc->loadXML($content);
 
         return $doc;
@@ -57,13 +60,13 @@ class XmlReader
     /**
      * Parse value to document.
      *
-     * @param \DOMDocument|string $value
+     * @param DOMDocument|string $value
      *
-     * @return \DOMDocument
+     * @return DOMDocument
      */
-    public function parseToDocument($value)
+    public function parseToDocument($value): ?DOMDocument
     {
-        if ($value instanceof \DOMDocument) {
+        if ($value instanceof DOMDocument) {
             return $value;
         }
 
@@ -73,7 +76,7 @@ class XmlReader
     /**
      * Init XPath.
      *
-     * @param \DOMDocument|string $value
+     * @param DOMDocument|string $value
      */
     public function loadXpath($value)
     {
@@ -85,13 +88,13 @@ class XmlReader
     /**
      * Init XPath from document.
      *
-     * @param \DOMDocument $doc
+     * @param DOMDocument $doc
      */
-    public function loadXpathFromDoc(\DOMDocument $doc)
+    public function loadXpathFromDoc(DOMDocument $doc)
     {
         $docName = $doc->documentElement->localName;
         $this->root = '/'.self::ROOT_PREFIX.':'.$docName;
-        $this->xpath = new \DOMXPath($doc);
+        $this->xpath = new DOMXPath($doc);
         $this->xpath->registerNamespace(self::ROOT_PREFIX, $doc->documentElement->namespaceURI);
     }
 

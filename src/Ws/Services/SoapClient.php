@@ -1,37 +1,51 @@
 <?php
+declare(strict_types=1);
 
 namespace Flogar\Ws\Services;
 
 use Flogar\Ws\Header\WSSESecurityHeader;
+use SoapFault;
 
 /**
  * Class SoapClient.
  */
-class SoapClient implements WsClientInterface
+class SoapClient extends \SoapClient implements WsClientInterface
 {
-    private $client;
-
     /**
      * SoapClient constructor.
      *
      * @param string $wsdl       Url of WSDL
      * @param array  $parameters Soap's parameters
+     *
+     * @throws SoapFault
      */
     public function __construct($wsdl = '', $parameters = [])
     {
         if (empty($wsdl)) {
             $wsdl = WsdlProvider::getBillPath();
-        }
-        $this->client = new \SoapClient($wsdl, $parameters);
+        }		
+	if (empty($parameters)) {
+		$parameters=[
+			'stream_context' => stream_context_create([
+				'ssl' => [
+					// 'ciphers'=>'AES256-SHA',
+					'verify_peer' => false,
+					'verify_peer_name' => false,
+					'allow_self_signed' => true
+				],
+			]),
+		];
+	}
+        parent::__construct($wsdl, $parameters);
     }
 
     /**
-     * @param $user
-     * @param $password
+     * @param string $user
+     * @param string $password
      */
-    public function setCredentials($user, $password)
+    public function setCredentials(?string $user, ?string $password)
     {
-        $this->client->__setSoapHeaders(new WSSESecurityHeader($user, $password));
+        $this->__setSoapHeaders(new WSSESecurityHeader($user, $password));
     }
 
     /**
@@ -39,19 +53,19 @@ class SoapClient implements WsClientInterface
      *
      * @param string $url
      */
-    public function setService($url)
+    public function setService(?string $url)
     {
-        $this->client->__setLocation($url);
+        $this->__setLocation($url);
     }
 
     /**
-     * @param $function
-     * @param $arguments
+     * @param string $function
+     * @param array $arguments
      *
      * @return mixed
      */
     public function call($function, $arguments)
     {
-        return $this->client->__soapCall($function, $arguments);
+        return $this->__soapCall($function, $arguments);
     }
 }

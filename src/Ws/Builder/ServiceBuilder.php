@@ -1,7 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace Flogar\Ws\Builder;
 
+use Exception;
 use Flogar\Ws\Services\BaseSunat;
 use Flogar\Ws\Services\WsClientInterface;
 
@@ -31,16 +33,14 @@ class ServiceBuilder
      * @param string $type Service Class
      *
      * @return object
-     *
-     * @throws \Exception
      */
     public function build($type)
     {
         if (!is_subclass_of($type, BaseSunat::class)) {
-            throw new \Exception($type.' should be instance of '.BaseSunat::class);
+            throw new Exception($type.' should be instance of '.BaseSunat::class);
         }
 
-        /** @var $service BaseSunat */
+        /** @var BaseSunat $service */
         $service = new $type();
         $service->setClient($this->client);
 

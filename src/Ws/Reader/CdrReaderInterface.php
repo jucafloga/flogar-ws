@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Flogar\Ws\Reader;
 
@@ -14,7 +15,7 @@ interface CdrReaderInterface
      *
      * @param string $xml
      *
-     * @return CdrResponse
+     * @return CdrResponse|null
      */
-    public function getCdrResponse($xml);
+    public function getCdrResponse(?string $xml): ?CdrResponse;
 }

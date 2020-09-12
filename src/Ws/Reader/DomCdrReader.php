@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Flogar\Ws\Reader;
 
@@ -28,21 +29,19 @@ class DomCdrReader implements CdrReaderInterface
      *
      * @param string $xml
      *
-     * @return CdrResponse
+     * @return CdrResponse|null
      */
-    public function getCdrResponse($xml)
+    public function getCdrResponse(?string $xml): ?CdrResponse
     {
         $this->reader->loadXpath($xml);
 
-        $cdr = $this->createCdr();
-
-        return $cdr;
+        return $this->createCdr();
     }
 
     /**
      * @return CdrResponse
      */
-    private function createCdr()
+    private function createCdr(): CdrResponse
     {
         $nodePrefix = 'cac:DocumentResponse/cac:Response/';
 
@@ -60,7 +59,7 @@ class DomCdrReader implements CdrReaderInterface
      *
      * @return string[]
      */
-    private function getNotes()
+    private function getNotes(): array
     {
         $xpath = $this->reader->getXpath();
 
