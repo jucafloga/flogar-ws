@@ -1,11 +1,13 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flogar\Ws\Services;
 
-use Exception;
 use Flogar\Model\Response\Error;
 use Flogar\Model\Response\StatusResult;
+use Flogar\Services\InvalidServiceResponseException;
+use SoapFault;
 
 /**
  * Class ExtService.
@@ -16,13 +18,13 @@ class ExtService extends BaseSunat
      * @param string $ticket
      *
      * @return StatusResult
-     * @throws Exception
+     * @throws InvalidServiceResponseException
      */
     public function getStatus($ticket): StatusResult
     {
         try {
             return $this->getStatusInternal($ticket);
-        } catch (\SoapFault $e) {
+        } catch (SoapFault $e) {
             $result = new StatusResult();
             $result->setError($this->getErrorFromFault($e));
 
@@ -30,6 +32,12 @@ class ExtService extends BaseSunat
         }
     }
 
+    /**
+     * @param string|null $ticket
+     * @return StatusResult
+     * @throws SoapFault
+     * @throws InvalidServiceResponseException
+     */
     private function getStatusInternal($ticket): StatusResult
     {
         $params = [
@@ -38,12 +46,16 @@ class ExtService extends BaseSunat
 
         $response = $this->getClient()->call('getStatus', ['parameters' => $params]);
         if (!isset($response->status)) {
-            throw new Exception('Invalid getStatus service response.');
+            throw new InvalidServiceResponseException('Invalid getStatus service response.');
         }
 
         return $this->processResponse($response->status);
     }
 
+    /**
+     * @param object $status
+     * @return StatusResult
+     */
     private function processResponse($status): StatusResult
     {
         $originCode = $status->statusCode;
@@ -59,13 +71,22 @@ class ExtService extends BaseSunat
         }
 
         if ($this->isProcessed($code)) {
+            if (!isset($status->content) || empty($status->content)) {
+                $result->setError(new Error(
+                        CustomErrorCodes::CDR_NOTFOUND_CODE,
+                        CustomErrorCodes::CDR_NOTFOUND_EXT_MSG)
+                );
+
+                return $result;
+            }
+
             $cdrZip = $status->content;
             $result
                 ->setSuccess(true)
-                ->setCdrResponse($this->extractResponse($cdrZip))
+                ->setCdrResponse($this->extractResponse((string)$cdrZip))
                 ->setCdrZip($cdrZip);
 
-            $code = $result->getCdrResponse()->getCode();
+            $code = (int)$result->getCdrResponse()->getCode();
         }
 
         if ($this->isExceptionCode($code)) {

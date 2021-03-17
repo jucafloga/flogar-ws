@@ -12,25 +12,16 @@
     "homepage": "https://github.com/jucafloga/flogar-ws",
     "type": "library",
     "require": {
-        "php": "^7.2",
-        "ext-zip": "*",
+        "php": ">=7.2",
         "ext-zlib": "*",
         "ext-dom": "*",
         "ext-soap": "*",
-        "flogar/core": "^2.0.1"
-    },
-    "require-dev": {
-        "phpunit/phpunit": ">=4.8 < 6.0",
-        "mockery/mockery": "^1.2"
+        "flogar/core": "^3.0",
+        "nelexa/zip": "^3.3 || ^4.0"
     },
     "autoload": {
         "psr-4": {
             "Flogar\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Tests\\Flogar\\": "tests/"
         }
     }
 }

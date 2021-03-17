@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Flogar\Ws\Services;
 
 use Flogar\Model\Response\BillResult;
+use Flogar\Model\Response\CdrResponse;
 use Flogar\Model\Response\Error;
 use Flogar\Validator\ErrorCodeProviderInterface;
 use Flogar\Ws\Reader\CdrReaderInterface;
@@ -11,7 +12,7 @@ use Flogar\Ws\Reader\DomCdrReader;
 use Flogar\Ws\Reader\XmlReader;
 use Flogar\Zip\CompressInterface;
 use Flogar\Zip\DecompressInterface;
-use Flogar\Zip\ZipFileDecompress;
+use Flogar\Zip\ZipDecompressDecorator;
 use Flogar\Zip\ZipFly;
 use SoapFault;
 
@@ -87,19 +88,19 @@ class BaseSunat
         $error = $this->getErrorByCode($fault->faultcode, $fault->faultstring);
 
         if (empty($error->getMessage())) {
-            $error->setMessage(isset($fault->detail) ? $fault->detail->message : $fault->faultstring);
+            $error->setMessage($fault->faultstring.(isset($fault->detail) ? ' '.$fault->detail->message : ''));
         }
 
         return $error;
     }
 
     /**
-     * @param string $code
-     * @param string $optional intenta obtener el codigo de este parametro sino $codigo no es válido
+     * @param string|null $code
+     * @param string|null $optional intenta obtener el codigo de este parametro sino $codigo no es válido
      *
      * @return Error
      */
-    protected function getErrorByCode($code, $optional = '')
+    protected function getErrorByCode(?string $code, ?string $optional = ''): Error
     {
         $error = new Error($code);
         $code = preg_replace(self::NUMBER_PATTERN, '', $code);
@@ -118,12 +119,12 @@ class BaseSunat
     }
 
     /**
-     * @param string $filename
-     * @param string $xml
+     * @param string|null $filename
+     * @param string|null $xml
      *
-     * @return string
+     * @return null|string
      */
-    protected function compress($filename, $xml)
+    protected function compress(?string $filename, ?string $xml): ?string
     {
         if (!$this->compressor) {
             $this->compressor = new ZipFly();
@@ -133,11 +134,11 @@ class BaseSunat
     }
 
     /**
-     * @param string $zipContent
+     * @param string|null $zipContent
      *
-     * @return \Flogar\Model\Response\CdrResponse
+     * @return CdrResponse|null
      */
-    protected function extractResponse($zipContent)
+    protected function extractResponse(?string $zipContent): ?CdrResponse
     {
         if (!$this->cdrReader) {
             $this->cdrReader = new DomCdrReader(new XmlReader());
@@ -149,11 +150,11 @@ class BaseSunat
     }
 
     /**
-     * @param string $code
+     * @param string|null $code
      *
-     * @return string
+     * @return null|string
      */
-    protected function getMessageError($code)
+    protected function getMessageError(?string $code): ?string
     {
         if ($this->codeProvider === null) {
             return '';
@@ -162,14 +163,16 @@ class BaseSunat
         return $this->codeProvider->getValue($code);
     }
 
-    protected function isExceptionCode($code)
+    protected function isExceptionCode(int $code): bool
     {
-        $value = (int)$code;
-
-        return $value >= 100 && $value <= 1999;
+        return $code >= 100 && $code <= 1999;
     }
 
-    protected function loadErrorByCode(BillResult $result, $code)
+    /**
+     * @param BillResult $result
+     * @param string|null $code
+     */
+    protected function loadErrorByCode(BillResult $result, ?string $code): void
     {
         $error = $this->getErrorByCode($code);
 
@@ -182,13 +185,13 @@ class BaseSunat
             ->setError($error);
     }
 
-    private function getXmlResponse($content)
+    private function getXmlResponse(?string $content)
     {
         if (!$this->decompressor) {
-            $this->decompressor = new ZipFileDecompress();
+            $this->decompressor = new ZipDecompressDecorator(new ZipFly());
         }
 
-        $filter = function ($filename) {
+        $filter = function (?string $filename) {
             return 'xml' === strtolower($this->getFileExtension($filename));
         };
         $files = $this->decompressor->decompress($content, $filter);
@@ -196,7 +199,7 @@ class BaseSunat
         return 0 === count($files) ? '' : $files[0]['content'];
     }
 
-    private function getFileExtension($filename)
+    private function getFileExtension(?string $filename)
     {
         $lastDotPos = strrpos($filename, '.');
         if (!$lastDotPos) {

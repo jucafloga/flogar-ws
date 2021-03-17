@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flogar\Ws\Services;
@@ -6,6 +7,7 @@ namespace Flogar\Ws\Services;
 use Flogar\Model\Response\BaseResult;
 use Flogar\Model\Response\SummaryResult;
 use Flogar\Services\SenderInterface;
+use SoapFault;
 
 /**
  * Class SummarySender.
@@ -33,7 +35,7 @@ class SummarySender extends BaseSunat implements SenderInterface
             $result
                 ->setTicket($response->ticket)
                 ->setSuccess(true);
-        } catch (\SoapFault $e) {
+        } catch (SoapFault $e) {
             $result->setError($this->getErrorFromFault($e));
         }
 

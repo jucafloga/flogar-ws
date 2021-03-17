@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Flogar\Ws\Services;
 
 use Flogar\Model\Response\StatusCdrResult;
+use SoapFault;
 
 /**
  * Class ConsultCdrService.
@@ -20,7 +21,7 @@ class ConsultCdrService extends BaseSunat
      *
      * @return StatusCdrResult
      */
-    public function getStatus($ruc, $tipo, $serie, $numero)
+    public function getStatus(string $ruc, string $tipo, string $serie, int $numero)
     {
         return $this->getStatusResult('getStatus', 'status', $ruc, $tipo, $serie, $numero);
     }
@@ -35,12 +36,12 @@ class ConsultCdrService extends BaseSunat
      *
      * @return StatusCdrResult
      */
-    public function getStatusCdr($ruc, $tipo, $serie, $numero)
+    public function getStatusCdr(string $ruc, string $tipo, string $serie, int $numero)
     {
         return $this->getStatusResult('getStatusCdr', 'statusCdr', $ruc, $tipo, $serie, $numero);
     }
 
-    private function getStatusResult($method, $resultName, $ruc, $tipo, $serie, $numero)
+    private function getStatusResult(string $method, string $resultName, string $ruc, string $tipo, string $serie, int $numero)
     {
         $result = new StatusCdrResult();
 
@@ -55,7 +56,7 @@ class ConsultCdrService extends BaseSunat
             $statusCdr = $response->{$resultName};
             $this->loadFromResponse($result, $statusCdr);
 
-        } catch (\SoapFault $e) {
+        } catch (SoapFault $e) {
             $result->setError($this->getErrorFromFault($e));
         }
 
@@ -71,11 +72,11 @@ class ConsultCdrService extends BaseSunat
 
         if (isset($statusCdr->content)) {
             $result->setCdrZip($statusCdr->content)
-                ->setCdrResponse($this->extractResponse($statusCdr->content));
+                ->setCdrResponse($this->extractResponse((string)$statusCdr->content));
             $code = $result->getCdrResponse()->getCode();
         }
 
-        if ($this->isExceptionCode($code)) {
+        if ($this->isExceptionCode((int)$code)) {
             $this->loadErrorByCode($result, $code);
         }
     }

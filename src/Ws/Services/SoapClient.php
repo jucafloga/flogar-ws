@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flogar\Ws\Services;
@@ -23,19 +24,19 @@ class SoapClient extends \SoapClient implements WsClientInterface
     {
         if (empty($wsdl)) {
             $wsdl = WsdlProvider::getBillPath();
-        }		
-	if (empty($parameters)) {
-		$parameters=[
-			'stream_context' => stream_context_create([
-				'ssl' => [
-					// 'ciphers'=>'AES256-SHA',
-					'verify_peer' => false,
-					'verify_peer_name' => false,
-					'allow_self_signed' => true
-				],
-			]),
-		];
-	}
+        }
+        if (empty($parameters)) {
+            $parameters=[
+                'stream_context' => stream_context_create([
+                    'ssl' => [
+                        // 'ciphers'=>'AES256-SHA',
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                        'allow_self_signed' => true
+                    ],
+                ]),
+            ];
+        }
         parent::__construct($wsdl, $parameters);
     }
 
@@ -60,7 +61,7 @@ class SoapClient extends \SoapClient implements WsClientInterface
 
     /**
      * @param string $function
-     * @param array $arguments
+     * @param mixed $arguments
      *
      * @return mixed
      */

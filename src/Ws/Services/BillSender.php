@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace Flogar\Ws\Services;
 
-use Flogar\Model\Response\BaseResult;
-use Flogar\Model\Response\BillResult;
-use Flogar\Services\SenderInterface;
+use FLogar\Model\Response\BaseResult;
+use FLogar\Model\Response\BillResult;
+use FLogar\Model\Response\Error;
+use FLogar\Services\SenderInterface;
+use SoapFault;
 
 /**
  * Class BillSender.
@@ -31,11 +33,20 @@ class BillSender extends BaseSunat implements SenderInterface
             ];
             $response = $client->call('sendBill', ['parameters' => $params]);
             $cdrZip = $response->applicationResponse;
+            if (empty($cdrZip)) {
+                $result->setError(new Error(
+                        CustomErrorCodes::CDR_NOTFOUND_CODE,
+                        CustomErrorCodes::CDR_NOTFOUND_BILL_MSG)
+                );
+
+                return $result;
+            }
+
             $result
-                ->setCdrResponse($this->extractResponse($cdrZip))
+                ->setCdrResponse($this->extractResponse((string)$cdrZip))
                 ->setCdrZip($cdrZip)
                 ->setSuccess(true);
-        } catch (\SoapFault $e) {
+        } catch (SoapFault $e) {
             $result->setError($this->getErrorFromFault($e));
         }
 
