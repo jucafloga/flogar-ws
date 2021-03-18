@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace Flogar\Ws\Services;
 
-use FLogar\Model\Response\BaseResult;
-use FLogar\Model\Response\BillResult;
-use FLogar\Model\Response\Error;
-use FLogar\Services\SenderInterface;
+use Flogar\Model\Response\BaseResult;
+use Flogar\Model\Response\BillResult;
+use Flogar\Model\Response\Error;
+use Flogar\Services\SenderInterface;
 use SoapFault;
 
 /**
