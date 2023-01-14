@@ -6,21 +6,22 @@
     "authors": [
         {
             "name": "Jucafloga",
-            "email": "jucafloga@gmail.com"
+            "email": "jucafloga@outlook.com"
         }
     ],
     "homepage": "https://github.com/jucafloga/flogar-ws",
     "type": "library",
     "require": {
-        "php": ">=7.2",
+        "php": ">=7.4",
         "ext-zlib": "*",
         "ext-dom": "*",
         "ext-soap": "*",
-        "flogar/core": "^3.0",
-        "nelexa/zip": "^3.3 || ^4.0"
+        "flogar/core": "^5.0",
+        "flogar/gre-api": "^1.0",
+        "nelexa/zip": "^4.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8",
+        "phpunit/phpunit": "^9",
         "mockery/mockery": "^1.2"
     },
     "autoload": {
@@ -31,6 +32,11 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\Flogar\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "5.0-dev"
         }
     }
 }

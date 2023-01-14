@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flogar\Ws\Reader;
@@ -48,12 +49,14 @@ class DomCdrReader implements CdrReaderInterface
     private function createCdr(): CdrResponse
     {
         $nodePrefix = 'cac:DocumentResponse/cac:Response/';
+        $referencePath = 'cac:DocumentResponse/cac:DocumentReference/cbc:DocumentDescription';
 
         $cdr = new CdrResponse();
         $cdr->setId($this->reader->getValue($nodePrefix.'cbc:ReferenceID'))
             ->setCode($this->reader->getValue($nodePrefix.'cbc:ResponseCode'))
             ->setDescription($this->reader->getValue($nodePrefix.'cbc:Description'))
-            ->setNotes($this->getNotes());
+            ->setNotes($this->getNotes())
+            ->setReference($this->reader->getValue($referencePath));
 
         return $cdr;
     }
@@ -75,7 +78,7 @@ class DomCdrReader implements CdrReaderInterface
 
         /** @var \DOMElement $node */
         foreach ($nodes as $node) {
-            $notes[] = $node->nodeValue;
+            $notes[] = $node->nodeValue ?? '';
         }
 
         return $notes;

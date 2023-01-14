@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <xs:schema xmlns:tns="http://service.sunat.gob.pe" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0"
            targetNamespace="http://service.sunat.gob.pe">
     <xs:element name="getStatus" type="tns:getStatus"/>
